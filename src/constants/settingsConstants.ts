@@ -1,11 +1,11 @@
-export interface ChartPluginSettings {
+export interface ProgressClockSettings {
     colors: string[];
     contextMenu: boolean;
     imageSettings: ImageOptions;
     themeable: boolean;
 }
 
-export const DEFAULT_SETTINGS: ChartPluginSettings = {
+export const DEFAULT_SETTINGS: ProgressClockSettings = {
     colors: [
         'rgba(255, 99, 132, 1)',
         'rgba(54, 162, 235, 1)',

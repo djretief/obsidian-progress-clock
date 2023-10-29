@@ -1,6 +1,6 @@
 import chroma from "chroma-js";
 import type { App, Editor, TFile } from "obsidian";
-import type { ChartPluginSettings } from "src/constants/settingsConstants";
+import type { ProgressClockSettings } from "src/constants/settingsConstants";
 import type Renderer from "src/chartRenderer";
 
 export function generateInnerColors(colors: string[], alpha = 0.25) {
@@ -26,7 +26,7 @@ export function base64ToArrayBuffer(base64: string) {
     return bytes.buffer;
 }
 
-export async function saveImageToVaultAndPaste(editor: Editor, app: App, renderer: Renderer, source: TFile, settings: ChartPluginSettings) {
+export async function saveImageToVaultAndPaste(editor: Editor, app: App, renderer: Renderer, source: TFile, settings: ProgressClockSettings) {
     const image = await renderer.imageRenderer(editor.getSelection(), settings.imageSettings);
     console.log("image converted")
     const file = await app.vault.createBinary(

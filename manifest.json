@@ -1,11 +1,11 @@
 {
-    "id": "obsidian-charts",
-    "name": "Obsidian Charts",
-    "version": "3.8.0",
+    "id": "obsidian-progress-clock",
+    "name": "Obsidian Progress Clocks",
+    "version": "0.0.0",
     "minAppVersion": "0.12.7",
     "description": "This Plugin lets you create Charts within Obsidian",
-    "author": "phibr0",
-    "authorUrl": "https://github.com/phibr0",
+    "author": "djretief",
+    "authorUrl": "https://github.com/djretief",
     "isDesktopOnly": false,
-    "fundingUrl": "https://ko-fi.com/phibr0"
+    "fundingUrl": "https://ko-fi.com/djretief"
 }

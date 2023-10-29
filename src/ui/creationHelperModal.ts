@@ -1,14 +1,14 @@
 import { App, MarkdownView, Modal } from "obsidian";
 import type Renderer from "../chartRenderer"
-import type { ChartPluginSettings } from "../constants/settingsConstants";
+import type { ProgressClockSettings } from "../constants/settingsConstants";
 import HelperModal from './HelperModal.svelte';
 
 export class CreationHelperModal extends Modal {
 	view: MarkdownView;
-	settings: ChartPluginSettings;
+	settings: ProgressClockSettings;
 	renderer: Renderer;
 
-	constructor(app: App, view: MarkdownView, settings: ChartPluginSettings, renderer: Renderer) {
+	constructor(app: App, view: MarkdownView, settings: ProgressClockSettings, renderer: Renderer) {
 		super(app);
 		this.settings = settings;
 		this.view = view;

@@ -1,15 +1,15 @@
 import { MarkdownView, Plugin, parseYaml, Menu, Editor, View, Notice, MarkdownPostProcessorContext } from 'obsidian';
 
 import Renderer from './chartRenderer';
-import { ChartPluginSettings, DEFAULT_SETTINGS } from './constants/settingsConstants';
+import { ProgressClockSettings, DEFAULT_SETTINGS } from './constants/settingsConstants';
 import { ChartSettingTab } from './ui/settingsTab';
 import { CreationHelperModal } from './ui/creationHelperModal';
 import { addIcons } from 'src/ui/icons';
 import { chartFromTable } from 'src/chartFromTable';
 import { renderError, saveImageToVaultAndPaste } from 'src/util';
 
-export default class ChartPlugin extends Plugin {
-	settings: ChartPluginSettings;
+export default class ProgressClockPlugin extends Plugin {
+	settings: ProgressClockSettings;
 	renderer: Renderer;
 
 	postprocessor = async (content: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
@@ -160,7 +160,7 @@ export default class ChartPlugin extends Plugin {
 			(menu: Menu, _: Editor, view: MarkdownView) => {
 				if (view && this.settings.contextMenu) {
 					menu.addItem((item) => {
-						item.setTitle("Insert Chart")
+						item.setTitle("Insert Clock")
 							.setIcon("chart")
 							.onClick((_) => {
 								new CreationHelperModal(this.app, view, this.settings, this.renderer).open();

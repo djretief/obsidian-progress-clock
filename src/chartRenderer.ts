@@ -1,14 +1,12 @@
-import { Chart, ChartConfiguration, SankeyControllerDatasetOptions, registerables } from 'chart.js';
-import { SankeyController, Flow } from 'chartjs-chart-sankey';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import './date-adapter/chartjs-adapter-moment.esm.js';
 import { MarkdownPostProcessorContext, MarkdownRenderChild, parseYaml, TFile } from 'obsidian';
 import { generateInnerColors, renderError } from 'src/util';
 import type { ImageOptions } from './constants/settingsConstants';
 import type ChartPlugin from 'src/main';
-import { generateTableData } from 'src/chartFromTable';
 import annotationPlugin from 'chartjs-plugin-annotation'
 
-Chart.register(...registerables, annotationPlugin, SankeyController, Flow);
+Chart.register(...registerables, annotationPlugin);
 
 // I need to refactor this
 // Or just rewrite it completely
@@ -48,15 +46,6 @@ export default class Renderer {
                     tension: yaml.tension ?? 0,
                     ...rest,
                 };
-                if (yaml.type === 'sankey') {
-                    // colorFrom, colorTo is accepted as object in yaml, but should be function for sankey.
-                    if (dataset.colorFrom)
-                        (dataset as SankeyControllerDatasetOptions).colorFrom = (c) => yaml.series[i].colorFrom[c.dataset.data[c.dataIndex].from] ?? colors[i] ?? 'green'
-                    
-                    if (dataset.colorTo)
-                        (dataset as SankeyControllerDatasetOptions).colorTo = (c) => yaml.series[i].colorTo[c.dataset.data[c.dataIndex].to] ?? colors[i] ?? 'green'
-                    
-                }
                 datasets.push(dataset);
             }
         }
@@ -81,113 +70,8 @@ export default class Renderer {
         };
         Chart.defaults.layout.padding = yaml.padding;
 
-        if (yaml.type == 'radar' || yaml.type == 'polarArea') {
-            (chartOptions as ChartConfiguration<"polarArea" | "radar">) = {
-                type: yaml.type,
-                data: {
-                    labels,
-                    datasets
-                },
-                options: {
-                    animation: {
-                        duration: 0
-                    },
-                    scales: {
-                        //@ts-ignore
-                        r: {
-                            ...time,
-                            grid: { color: gridColor },
-                            beginAtZero: yaml.beginAtZero,
-                            max: yaml.rMax,
-                            min: yaml.rMin,
-                            ticks: {
-                                backdropColor: gridColor
-                            }
-                        },
-                    },
-                }
-            };
-        } else if (yaml.type == 'bar' || yaml.type == 'line') {
-            (chartOptions as ChartConfiguration<"bar" | "line">) = {
-                type: yaml.type,
-                data: {
-                    labels,
-                    datasets
-                },
-                options: {
-                    animation: {
-                        duration: 0
-                    },
-                    indexAxis: yaml.indexAxis,
-                    spanGaps: yaml.spanGaps,
-                    scales: {
-                        y: {
-                            min: yaml.yMin,
-                            max: yaml.yMax,
-                            reverse: yaml.yReverse,
-                            ticks: {
-                                display: yaml.yTickDisplay,
-                                padding: yaml.yTickPadding
-                            },
-                            display: yaml.yDisplay,
-                            stacked: yaml.stacked,
-                            beginAtZero: yaml.beginAtZero,
-                            grid: { color: gridColor },
-                            title: {
-                                display: yaml.yTitle,
-                                text: yaml.yTitle
-                            }
-                        },
-                        //@ts-ignore
-                        x: {
-                            ...time,
-                            min: yaml.xMin,
-                            max: yaml.xMax,
-                            reverse: yaml.xReverse,
-                            ticks: {
-                                display: yaml.xTickDisplay,
-                                padding: yaml.xTickPadding
-                            },
-                            display: yaml.xDisplay,
-                            stacked: yaml.stacked,
-                            grid: { color: gridColor },
-                            title: {
-                                display: yaml.xTitle,
-                                text: yaml.xTitle
-                            }
-                        }
-                    },
-                }
-            };
-        } else if (yaml.type === 'sankey') {
-            datasets = datasets.map(dataset => {
-                return {
-                    ...dataset,
-                    data: dataset.data.map((item: object | any[]) => 
-                        Array.isArray(item) && item.length === 3 ?
-                        {
-                            from: item[0],
-                            flow: item[1],
-                            to: item[2],
-                        } : item
-                    )
-                }
-            }) as ChartConfiguration<'sankey'>['data']['datasets'];
-            
-            (chartOptions as ChartConfiguration<'sankey'>) = {
-                type: yaml.type,
-                data: {
-                    labels,
-                    datasets,
-                },
-                options: {
-                    animation: {
-                        duration: 0
-                    },
-                }
-            }
-        }else {
-            (chartOptions as ChartConfiguration<"pie" | "doughnut" | "bubble" | "scatter">) = {
+        if (yaml.type == 'pie') {
+            (chartOptions as ChartConfiguration<"pie">) = {
                 type: yaml.type,
                 data: {
                     labels,
@@ -300,24 +184,29 @@ class ChartRenderChild extends MarkdownRenderChild {
                 }
 
                 const tableString = (await this.renderer.plugin.app.vault.cachedRead(this.data.file ? linkDest : this.renderer.plugin.app.vault.getAbstractFileByPath(this.ownPath) as TFile)).substring(pos.start.offset, pos.end.offset);
-                let tableData;
-                try {
-                    tableData = generateTableData(tableString, this.data.layout ?? 'columns', this.data.select);
-                } catch (error) {
-                    throw "There is no table at that id and/or file"
+                let pieData:number[] = [];
+
+                for(let i=0;6>i;i++){
+                    pieData.push(1);
                 }
-                x.labels = tableData.labels;
-                for (let i = 0; tableData.dataFields.length > i; i++) {
-                    x.datasets.push({
-                        label: tableData.dataFields[i].dataTitle ?? "",
-                        data: tableData.dataFields[i].data,
-                        backgroundColor: this.data.labelColors ? colors.length ? generateInnerColors(colors, this.data.transparency) : generateInnerColors(this.renderer.plugin.settings.colors, this.data.transparency) : colors.length ? generateInnerColors(colors, this.data.transparency)[i] : generateInnerColors(this.renderer.plugin.settings.colors, this.data.transparency)[i],
-                        borderColor: this.data.labelColors ? colors.length ? colors : this.renderer.plugin.settings.colors : colors.length ? colors[i] : this.renderer.plugin.settings.colors[i],
-                        borderWidth: 1,
-                        fill: this.data.fill ? this.data.stacked ? i == 0 ? 'origin' : '-1' : true : false,
-                        tension: this.data.tension ?? 0,
-                    });
-                }
+
+                // try {
+                //     //tableData = generateTableData(tableString, this.data.layout ?? 'columns', this.data.select);
+                // } catch (error) {
+                //     throw "There is no table at that id and/or file"
+                // }
+                //x.labels = tableData.labels;
+                //for (let i = 0; tableData.dataFields.length > i; i++) {
+                x.datasets.push({
+                    label: "",
+                    data: pieData,
+                    backgroundColor: this.data.labelColors ? colors.length ? generateInnerColors(colors, this.data.transparency) : generateInnerColors(this.renderer.plugin.settings.colors, this.data.transparency) : colors.length ? generateInnerColors(colors, this.data.transparency)[0] : generateInnerColors(this.renderer.plugin.settings.colors, this.data.transparency)[0],
+                    borderColor: this.data.labelColors ? colors.length ? colors : this.renderer.plugin.settings.colors : colors.length ? colors[0] : this.renderer.plugin.settings.colors[0],
+                    borderWidth: 1,
+                    fill: this.data.fill ? this.data.stacked ? true ? 'origin' : '-1' : true : false,
+                    tension: this.data.tension ?? 0,
+                });
+                //}
                 data.chartOptions.data.labels = x.labels;
                 data.chartOptions.data.datasets = x.datasets;
 

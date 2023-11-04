@@ -38,7 +38,7 @@ export default class Renderer {
             for (let i = 0; yaml.series.length > i; i++) {
                 const {title, ...rest} = yaml.series[i];
                 const dataset = {
-                    label: title ?? "",
+                    label: title ?? "Progress Clock",
                     backgroundColor: yaml.labelColors ? colors.length ? generateInnerColors(colors, yaml.transparency) : generateInnerColors(this.plugin.settings.colors, yaml.transparency) : colors.length ? generateInnerColors(colors, yaml.transparency)[i] : generateInnerColors(this.plugin.settings.colors, yaml.transparency)[i],
                     borderColor: yaml.labelColors ? colors.length ? colors : this.plugin.settings.colors : colors.length ? colors[i] : this.plugin.settings.colors[i],
                     borderWidth: 1,
@@ -160,58 +160,47 @@ class ChartRenderChild extends MarkdownRenderChild {
         try {
             const data = await this.renderer.datasetPrep(this.data, this.el);
             let x: any = {};
-            if (this.data.id) {
-                const colors = [];
-                if (this.renderer.plugin.settings.themeable) {
-                    let i = 1;
-                    while (true) {
-                        let color = getComputedStyle(this.el).getPropertyValue(`--chart-color-${i}`);
-                        if (color) {
-                            colors.push(color);
-                            i++;
-                        } else {
-                            break;
-                        }
-                    }
-                }
-                x.datasets = [];
-                let linkDest: TFile;
-                if (this.data.file) linkDest = this.renderer.plugin.app.metadataCache.getFirstLinkpathDest(this.data.file, this.renderer.plugin.app.workspace.getActiveFile().path);
-                const pos = this.renderer.plugin.app.metadataCache.getFileCache(
-                    linkDest ?? this.renderer.plugin.app.vault.getAbstractFileByPath(this.ownPath) as TFile).sections.find(pre => pre.id === this.data.id)?.position;
-                if (!pos) {
-                    throw "Invalid id and/or file";
-                }
+            // if (this.data.id) {
+            //     const colors = [];
+            //     if (this.renderer.plugin.settings.themeable) {
+            //         let i = 1;
+            //         while (true) {
+            //             let color = getComputedStyle(this.el).getPropertyValue(`--chart-color-${i}`);
+            //             if (color) {
+            //                 colors.push(color);
+            //                 i++;
+            //             } else {
+            //                 break;
+            //             }
+            //         }
+            //     }
+            //     x.datasets = [];
+            //     let linkDest: TFile;
+            //     if (this.data.file) linkDest = this.renderer.plugin.app.metadataCache.getFirstLinkpathDest(this.data.file, this.renderer.plugin.app.workspace.getActiveFile().path);
+            //     const pos = this.renderer.plugin.app.metadataCache.getFileCache(
+            //         linkDest ?? this.renderer.plugin.app.vault.getAbstractFileByPath(this.ownPath) as TFile).sections.find(pre => pre.id === this.data.id)?.position;
+            //     if (!pos) {
+            //         throw "Invalid id and/or file";
+            //     }
 
-                const tableString = (await this.renderer.plugin.app.vault.cachedRead(this.data.file ? linkDest : this.renderer.plugin.app.vault.getAbstractFileByPath(this.ownPath) as TFile)).substring(pos.start.offset, pos.end.offset);
-                let pieData:number[] = [];
+            //     const tableString = (await this.renderer.plugin.app.vault.cachedRead(this.data.file ? linkDest : this.renderer.plugin.app.vault.getAbstractFileByPath(this.ownPath) as TFile)).substring(pos.start.offset, pos.end.offset);
+            //     let pieData:number[] = [];
 
-                for(let i=0;6>i;i++){
-                    pieData.push(1);
-                }
-
-                // try {
-                //     //tableData = generateTableData(tableString, this.data.layout ?? 'columns', this.data.select);
-                // } catch (error) {
-                //     throw "There is no table at that id and/or file"
-                // }
-                //x.labels = tableData.labels;
-                //for (let i = 0; tableData.dataFields.length > i; i++) {
-                x.datasets.push({
-                    label: "",
-                    data: pieData,
-                    backgroundColor: this.data.labelColors ? colors.length ? generateInnerColors(colors, this.data.transparency) : generateInnerColors(this.renderer.plugin.settings.colors, this.data.transparency) : colors.length ? generateInnerColors(colors, this.data.transparency)[0] : generateInnerColors(this.renderer.plugin.settings.colors, this.data.transparency)[0],
-                    borderColor: this.data.labelColors ? colors.length ? colors : this.renderer.plugin.settings.colors : colors.length ? colors[0] : this.renderer.plugin.settings.colors[0],
-                    borderWidth: 1,
-                    fill: this.data.fill ? this.data.stacked ? true ? 'origin' : '-1' : true : false,
-                    tension: this.data.tension ?? 0,
-                });
-                //}
-                data.chartOptions.data.labels = x.labels;
-                data.chartOptions.data.datasets = x.datasets;
+            //     // x.datasets.push({
+            //     //     label: "",
+            //     //     data: this.data.data,
+            //     //     backgroundColor: this.data.labelColors ? colors.length ? generateInnerColors(colors, this.data.transparency) : generateInnerColors(this.renderer.plugin.settings.colors, this.data.transparency) : colors.length ? generateInnerColors(colors, this.data.transparency)[0] : generateInnerColors(this.renderer.plugin.settings.colors, this.data.transparency)[0],
+            //     //     borderColor: this.data.labelColors ? colors.length ? colors : this.renderer.plugin.settings.colors : colors.length ? colors[0] : this.renderer.plugin.settings.colors[0],
+            //     //     borderWidth: 1,
+            //     //     fill: this.data.fill ? this.data.stacked ? true ? 'origin' : '-1' : true : false,
+            //     //     tension: this.data.tension ?? 0,
+            //     // });
+            //     //}
+            //     data.chartOptions.data.labels = x.labels;
+            //     data.chartOptions.data.datasets = x.datasets;
 
 
-            }
+            // }
             this.chart = this.renderer.renderRaw(data, this.containerEl);
         } catch (error) {
             renderError(error, this.el);

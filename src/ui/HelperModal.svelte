@@ -12,12 +12,13 @@ import type { Chart } from "chart.js";
 
   const dispatch = createEventDispatcher();
 
-  let chartType: string = "bar";
+  let chartType: string = "pie";
+  let numSegments: number = 4;
   let lastChart: Chart = null;
   let tension: number = 20;
   let width: number = 80;
   let fill: boolean = false;
-  let labelColors: boolean = false;
+  let labelColors: boolean = true;
   let startAtZero: boolean = false;
   let bestFit: boolean = false;
   let bestFitTitle: string;
@@ -29,27 +30,41 @@ import type { Chart } from "chart.js";
   const debouncedRenderChart = debounce(
     async (yaml: any, el: HTMLElement) => {
       if(lastChart) lastChart.destroy();
-      previewElement.lastElementChild?.remove();
+          previewElement.lastElementChild?.remove();
       lastChart = renderer.renderRaw(await renderer.datasetPrep(parseYaml(yaml), el), el);
     },
     500,
     true
   );
 
-  $: chart = `type: ${chartType}
-labels: [${labels}]
+  $: {
+    if(numSegments == 3){
+        data[0] = {dataTitle: "Progress Clock", data: "1,1,1"}
+      }else if(numSegments == 4){
+        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1"}
+      }else if(numSegments == 5){
+        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1"}
+      }else if(numSegments == 6){
+        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1,1"}
+      }else if(numSegments == 7){
+        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1,1,1"}
+      }else if(numSegments == 8){
+        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1,1,1,1"}
+      }else if(numSegments == 10){
+        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1,1,1,1,1"}
+      }else{
+        data[0] = {dataTitle: "Pogress Clock", data: "1,1,1,1"}
+      }
+  }
+
+  $: chart = `type: "pie"
+labels: []
 series:
 ${data
   .map((data) => `  - title: ${data.dataTitle}\n    data: [${data.data}]`)
   .join("\n")}
-tension: ${tension / 100}
 width: ${width}%
-labelColors: ${labelColors}
-fill: ${fill}
-beginAtZero: ${startAtZero}
-bestFit: ${bestFit}
-bestFitTitle: ${bestFitTitle}
-bestFitNumber: ${bestFitNumber}`;
+labelColors: ${labelColors}`;
 
   $: {
     if (previewElement) {
@@ -64,8 +79,7 @@ bestFitNumber: ${bestFitNumber}`;
   function insertChart() {
     let doc = editor.getDoc();
     let cursor = doc.getCursor();
-    lastChart.destroy();
-
+    if(lastChart)
     doc.replaceRange("```chart\n" + chart + "\n```", cursor);
     dispatch("close");
   }
@@ -79,14 +93,10 @@ bestFitNumber: ${bestFitNumber}`;
         <tr>
           <td class="desc">
             <p class="mainDesc">Clock Segments</p>
-            <p class="subDesc">Choose how many segments the clock will have</p></td>
-            <td class="controlElement">
-              <select
-              name="Segments"
-              id="clock-segments"
-              class="dropdown"
-              bind:value={chartType}
-            >
+            <p class="subDesc">Choose how many segments the clock will have</p>
+          </td>
+          <td class="controlElement">
+            <select name="Segments" id="clock-segments" class="dropdown" bind:value={numSegments}>
               <option value="3">3</option>
               <option value="4">4</option>
               <option value="5">5</option>
@@ -94,34 +104,17 @@ bestFitNumber: ${bestFitNumber}`;
               <option value="7">7</option>
               <option value="8">8</option>
               <option value="10">10</option>
-            </select></td>
+            </select>
+          </td>
         </tr>
         <tr>
-          <td class="desc"
-            ><p class="mainDesc">Width</p>
-            <p class="subDesc">Changes the horizontal width</p></td
-          ><td class="controlElement"
-            ><input
-              type="range"
-              min="20"
-              max="100"
-              class="slider"
-              bind:value={width}
-            /></td
-          >
-        </tr>
-        <tr>
-          <td class="desc"
-            ><p class="mainDesc">Fill</p>
-            <p class="subDesc">Fill the underside of the Chart</p></td
-          ><td class="controlElement"
-            ><input
-              type="checkbox"
-              class="task-list-item-checkbox"
-              style="width: 16px; height: 16px"
-              bind:checked={fill}
-            /></td
-          >
+          <td class="desc">
+            <p class="mainDesc">Width</p>
+            <p class="subDesc">Changes the horizontal width</p>
+          </td>
+          <td class="controlElement">
+            <input type="range" min="20" max="100" class="slider" bind:value={width}/>
+          </td>
         </tr>
       </table>
     </div>

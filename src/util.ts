@@ -25,16 +25,3 @@ export function base64ToArrayBuffer(base64: string) {
     }
     return bytes.buffer;
 }
-
-// export async function saveImageToVaultAndPaste(editor: Editor, app: App, renderer: Renderer, source: TFile, settings: ProgressClockSettings) {
-//     const image = await renderer.imageRenderer(editor.getSelection(), settings.imageSettings);
-//     console.log("image converted")
-//     const file = await app.vault.createBinary(
-//         //@ts-ignore
-//         await app.vault.getAvailablePathForAttachments(`Chart ${new Date().toDateString()}`, settings.imageSettings.format.split('/').last(), source),
-//         base64ToArrayBuffer(image)
-//     );
-//     console.log("Image saved")
-
-//     editor.replaceSelection(app.fileManager.generateMarkdownLink(file, source.path));
-// }

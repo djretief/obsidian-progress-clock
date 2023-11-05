@@ -5,28 +5,22 @@
   import CollapsibleSection from './CollapsibleSection.svelte'
   import { renderError } from "src/util";
   import type { DataField } from "src/constants/settingsConstants";
-import type { Chart } from "chart.js";
+import type { Chart, Color } from "chart.js";
 
   export let editor: Editor;
   export let renderer: Renderer;
 
   const dispatch = createEventDispatcher();
-
-  let chartType: string = "pie";
+  let chartTitle: string = "Progress Clock";
   let numSegments: number = 4;
+  let tickColorString: string = "rgba(255,255,255,1)";
+  let tockColorString: string = "rgba(50,50,50,1)";
   let lastChart: Chart = null;
-  let tension: number = 20;
   let width: number = 80;
-  let fill: boolean = false;
-  let labelColors: boolean = true;
-  let startAtZero: boolean = false;
-  let bestFit: boolean = false;
-  let bestFitTitle: string;
-  let bestFitNumber: string = "0";
-  let labels: string = "";
-  let data: DataField[] = [{ dataTitle: "", data: "", ticked: ""}];
+  let data: DataField[] = [{ dataTitle: "", data: "", ticked: "", tickColor: "", tockColor: ""}];
   let chart: string;
   let previewElement: HTMLDivElement = null;
+
   const debouncedRenderChart = debounce(
     async (yaml: any, el: HTMLElement) => {
       if(lastChart) lastChart.destroy();
@@ -44,17 +38,17 @@ import type { Chart } from "chart.js";
       dataString += ",1"
       tickedString += ",0"
     }
-    data[0] = {dataTitle: "Progress Clock", data: dataString, ticked: tickedString}
+    data[0] = {dataTitle: "Progress Clock", data: dataString, ticked: tickedString, tickColor: tickColorString, tockColor: tockColorString}
   }
 
   $: chart = `type: "pie"
+chartTitle: ${chartTitle}
 labels: []
 series:
 ${data
-  .map((data) => `  - title: ${data.dataTitle}\n    data: [${data.data}]\n    ticked: [${data.ticked}]`)
+  .map((data) => `  - title: ${data.dataTitle}\n    data: [${data.data}]\n    ticked: [${data.ticked}]\n    tickColor: ${data.tickColor}\n    tockColor: ${data.tockColor}`)
   .join("\n")}
-width: ${width}%
-labelColors: ${labelColors}`;
+width: ${width}%`;
 
   $: {
     if (previewElement) {
@@ -106,6 +100,39 @@ labelColors: ${labelColors}`;
             <input type="range" min="20" max="100" class="slider" bind:value={width}/>
           </td>
         </tr>
+        <tr>
+          <td class="desc">
+            <p class="mainDesc">Tick Colour</p>
+            <p class="subDesc">The colour of marked off segments</p>
+          </td>
+          <td class="controlElement">
+            <select name="Tick Colour" id="tick-color" class="dropdown" bind:value={tickColorString}>
+              <option style="background:rgba(200,0,0,1)" value="rgba(200,0,0,1)">Red</option>
+              <option style="background:rgba(0,200,0,1)" value="rgba(0,200,0,1)">Green</option>
+              <option style="background:rgba(0,0,200,1)" value="rgba(0,0,200,1)">Blue</option>
+              <option style="background:rgba(200,200,200,1);color:black;" value="rgba(255,255,255,1)">White</option>
+              <option style="background:rgba(100,100,100,1)" value="rgba(100,100,100,1)">Light Grey</option>
+              <option style="background:rgba(200,200,0,1);color:black;" value="rgba(200,200,0,1)">Yellow</option>
+              <option style="background:rgba(200,0,200,1)" value="rgba(200,0,200,1)">Purple</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td class="desc">
+            <p class="mainDesc">Clock Base Colour</p>
+            <p class="subDesc">The colour of unmarked segments</p>
+          </td>
+          <td class="controlElement">
+            <select name="Base Colour" id="tock-color" class="dropdown" bind:value={tockColorString}>
+              <option style="background:rgba(100,0,0,1)" value="rgba(100,0,0,1)">Red</option>
+              <option style="background:rgba(0,100,0,1)" value="rgba(0,100,0,1)">Green</option>
+              <option style="background:rgba(0,0,100,1)" value="rgba(0,0,100,1)">Blue</option>
+              <option style="background:rgba(50,50,50,1)" value="rgba(50,50,50,1)">Dark Grey</option>
+              <option style="background:rgba(100,100,0,1)" value="rgba(100,100,0,1)">Yellow</option>
+              <option style="background:rgba(100,0,100,1)" value="rgba(100,0,100,1)">Purple</option>
+            </select>
+          </td>
+        </tr>
       </table>
     </div>
     <div class="chartPreview">
@@ -119,12 +146,6 @@ labelColors: ${labelColors}`;
 </div>
 
 <style>
-  .addMoreButtonContainer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0.4rem;
-  }
-
   .subDesc {
     font-size: smaller;
     opacity: 0.5;

@@ -27,4 +27,6 @@ export interface DataField {
     dataTitle: string;
     data: string | string[];
     ticked: string | string[];
+    tickColor: string | string[];
+    tockColor: string | string[];
 }

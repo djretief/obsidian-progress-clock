@@ -2,7 +2,7 @@ import { MarkdownView, Plugin, parseYaml, Menu, Editor, View, Notice, MarkdownPo
 
 import Renderer from './chartRenderer';
 import { ProgressClockSettings, DEFAULT_SETTINGS } from './constants/settingsConstants';
-import { ChartSettingTab } from './ui/settingsTab';
+import { ProgressClockSettingTab } from './ui/settingsTab';
 import { CreationHelperModal } from './ui/creationHelperModal';
 import { addIcons } from 'src/ui/icons';
 import { renderError } from 'src/util';
@@ -48,7 +48,7 @@ export default class ProgressClockPlugin extends Plugin {
 		//@ts-ignore
 		window.renderChart = this.renderer.renderRaw;
 
-		this.addSettingTab(new ChartSettingTab(this.app, this));
+		this.addSettingTab(new ProgressClockSettingTab(this.app, this));
 
 		this.addCommand({
 			id: 'creation-helper',

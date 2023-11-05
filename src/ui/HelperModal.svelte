@@ -24,7 +24,7 @@ import type { Chart } from "chart.js";
   let bestFitTitle: string;
   let bestFitNumber: string = "0";
   let labels: string = "";
-  let data: DataField[] = [{ dataTitle: "", data: "" }];
+  let data: DataField[] = [{ dataTitle: "", data: "", ticked: ""}];
   let chart: string;
   let previewElement: HTMLDivElement = null;
   const debouncedRenderChart = debounce(
@@ -38,30 +38,20 @@ import type { Chart } from "chart.js";
   );
 
   $: {
-    if(numSegments == 3){
-        data[0] = {dataTitle: "Progress Clock", data: "1,1,1"}
-      }else if(numSegments == 4){
-        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1"}
-      }else if(numSegments == 5){
-        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1"}
-      }else if(numSegments == 6){
-        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1,1"}
-      }else if(numSegments == 7){
-        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1,1,1"}
-      }else if(numSegments == 8){
-        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1,1,1,1"}
-      }else if(numSegments == 10){
-        data[0] = {dataTitle: "Progress Clock", data: "1,1,1,1,1,1,1,1,1"}
-      }else{
-        data[0] = {dataTitle: "Pogress Clock", data: "1,1,1,1"}
-      }
+    let dataString = "1"
+    let tickedString = "1"
+    for(let i=1; i<numSegments; i++){
+      dataString += ",1"
+      tickedString += ",0"
+    }
+    data[0] = {dataTitle: "Progress Clock", data: dataString, ticked: tickedString}
   }
 
   $: chart = `type: "pie"
 labels: []
 series:
 ${data
-  .map((data) => `  - title: ${data.dataTitle}\n    data: [${data.data}]`)
+  .map((data) => `  - title: ${data.dataTitle}\n    data: [${data.data}]\n    ticked: [${data.ticked}]`)
   .join("\n")}
 width: ${width}%
 labelColors: ${labelColors}`;

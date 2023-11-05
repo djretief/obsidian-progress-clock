@@ -39,10 +39,9 @@ export default class Renderer {
                 const {title, ...rest} = yaml.series[i];
                 const dataset = {
                     label: title ?? "Progress Clock",
-                    backgroundColor: yaml.labelColors ? colors.length ? generateInnerColors(colors, yaml.transparency) : generateInnerColors(this.plugin.settings.colors, yaml.transparency) : colors.length ? generateInnerColors(colors, yaml.transparency)[i] : generateInnerColors(this.plugin.settings.colors, yaml.transparency)[i],
-                    borderColor: yaml.labelColors ? colors.length ? colors : this.plugin.settings.colors : colors.length ? colors[i] : this.plugin.settings.colors[i],
+                    backgroundColor: generateInnerColors(colors, yaml.transparency)[1],
+                    borderColor: colors[1],
                     borderWidth: 1,
-                    fill: yaml.fill ? yaml.stacked ? i == 0 ? 'origin' : '-1' : true : false, //See https://github.com/phibr0/obsidian-charts/issues/53#issuecomment-1084869550
                     tension: yaml.tension ?? 0,
                     ...rest,
                 };
@@ -93,22 +92,22 @@ export default class Renderer {
      * @param yaml the copied codeblock
      * @returns base64 encoded image in png format
      */
-    async imageRenderer(yaml: string, options: ImageOptions): Promise<string> {
-        const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
-        const destination = document.createElement('canvas');
-        const destinationContext = destination.getContext("2d");
+    // async imageRenderer(yaml: string, options: ImageOptions): Promise<string> {
+    //     const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+    //     const destination = document.createElement('canvas');
+    //     const destinationContext = destination.getContext("2d");
 
-        const chartOptions = await this.datasetPrep(await parseYaml(yaml.replace("```chart", "").replace("```", "").replace(/\t/g, '    ')), document.body);
+    //     const chartOptions = await this.datasetPrep(await parseYaml(yaml.replace("```chart", "").replace("```", "").replace(/\t/g, '    ')), document.body);
 
-        new Chart(destinationContext, chartOptions.chartOptions);
+    //     new Chart(destinationContext, chartOptions.chartOptions);
 
-        document.body.append(destination);
-        await delay(250);
-        const dataurl = destination.toDataURL(options.format, options.quality);
-        document.body.removeChild(destination);
+    //     document.body.append(destination);
+    //     await delay(250);
+    //     const dataurl = destination.toDataURL(options.format, options.quality);
+    //     document.body.removeChild(destination);
 
-        return dataurl.substring(dataurl.indexOf(',') + 1);
-    }
+    //     return dataurl.substring(dataurl.indexOf(',') + 1);
+    // }
 
     renderRaw(data: any, el: HTMLElement): Chart | null {
         const destination = el.createEl('canvas');

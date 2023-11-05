@@ -5,7 +5,7 @@ import { ProgressClockSettings, DEFAULT_SETTINGS } from './constants/settingsCon
 import { ChartSettingTab } from './ui/settingsTab';
 import { CreationHelperModal } from './ui/creationHelperModal';
 import { addIcons } from 'src/ui/icons';
-import { renderError, saveImageToVaultAndPaste } from 'src/util';
+import { renderError } from 'src/util';
 
 export default class ProgressClockPlugin extends Plugin {
 	settings: ProgressClockSettings;
@@ -88,5 +88,4 @@ export default class ProgressClockPlugin extends Plugin {
 	onunload() {
 		console.log('unloading plugin: Obsidian Charts');
 	}
-
 }
